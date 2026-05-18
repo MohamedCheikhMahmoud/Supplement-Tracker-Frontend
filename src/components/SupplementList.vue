@@ -80,8 +80,10 @@ export default {
     fetch('https://supplement-tracker-backend.onrender.com/supplements')
       .then(response => response.json())
       .then(data => {
-        // Speichert die geladenen Daten
-        this.supplements = data
+        this.supplements = data.map(supplement => ({
+          ...supplement,
+          taken: false
+        }))
       })
       .catch(error => {
         console.error('Fehler beim Laden der Supplements:', error)
