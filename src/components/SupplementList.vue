@@ -82,7 +82,17 @@ export default {
       .then(data => {
         this.supplements = data.map(supplement => ({
           ...supplement,
-          taken: false
+          taken: false,
+          icon:
+            supplement.name === 'Vitamin D'
+              ? '☀️'
+              : supplement.name === 'Creatin'
+                ? '💪'
+                : supplement.name === 'Omega 3'
+                  ? '❤️'
+                  : supplement.name === 'Magnesium'
+                    ? '🌙'
+                    : '💊'
         }))
       })
       .catch(error => {
