@@ -94,7 +94,10 @@ export default {
   // Filtert Supplements anhand des Suchfelds
     filteredSupplements () {
       return this.supplements.filter(supplement =>
-        supplement.name.toLowerCase().includes(this.searchText.toLowerCase())
+        supplement.name
+          .trim()
+          .toLowerCase()
+          .includes(this.searchText.trim().toLowerCase())
       )
     },
 
