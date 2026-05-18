@@ -61,65 +61,64 @@
 </template>
 
 <script>
-  export default {
+export default {
   name: 'SupplementList',
 
   // Lokale Daten
   data () {
-  return {
-  // Suchtext für die Filterfunktion
-  searchText: '',
+    return {
+      // Suchtext für die Filterfunktion
+      searchText: '',
 
-  // Supplement-Daten vom Backend
-  supplements: []
-}
-},
+      // Supplement-Daten vom Backend
+      supplements: []
+    }
+  },
 
   // Lädt Daten vom Spring Boot Backend
   mounted () {
-  fetch('https://supplement-tracker-backend.onrender.com/supplements')
-  .then(response => response.json())
-  .then(data => {
-  // Speichert die geladenen Daten
-  this.supplements = data
-})
-  .catch(error => {
-  console.error('Fehler beim Laden der Supplements:', error)
-})
-},
+    fetch('https://supplement-tracker-backend.onrender.com/supplements')
+      .then(response => response.json())
+      .then(data => {
+        // Speichert die geladenen Daten
+        this.supplements = data
+      })
+      .catch(error => {
+        console.error('Fehler beim Laden der Supplements:', error)
+      })
+  },
 
   computed: {
   // Filtert Supplements anhand des Suchfelds
-  filteredSupplements () {
-  return this.supplements.filter(supplement =>
-  supplement.name.toLowerCase().includes(this.searchText.toLowerCase())
-  )
-},
+    filteredSupplements () {
+      return this.supplements.filter(supplement =>
+        supplement.name.toLowerCase().includes(this.searchText.toLowerCase())
+      )
+    },
 
-  // Zählt eingenommene Supplements
-  takenCount () {
-  return this.supplements.filter(supplement => supplement.taken).length
-},
+    // Zählt eingenommene Supplements
+    takenCount () {
+      return this.supplements.filter(supplement => supplement.taken).length
+    },
 
-  // Berechnet Fortschritt in Prozent
-  progressPercent () {
-  return (this.takenCount / this.supplements.length) * 100
-}
-},
+    // Berechnet Fortschritt in Prozent
+    progressPercent () {
+      return (this.takenCount / this.supplements.length) * 100
+    }
+  },
 
   methods: {
   // Ändert den Status von Taken zu Open oder andersrum
-  toggleTaken (id) {
-  const supplement = this.supplements.find(item => item.id === id)
+    toggleTaken (id) {
+      const supplement = this.supplements.find(item => item.id === id)
 
-  if (supplement) {
-  supplement.taken = !supplement.taken
-}
-}
-}
+      if (supplement) {
+        supplement.taken = !supplement.taken
+      }
+    }
+  }
 }
 </script>
-
 
 <style scoped>
 .dashboard {
