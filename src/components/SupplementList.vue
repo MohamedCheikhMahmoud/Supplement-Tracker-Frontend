@@ -28,8 +28,8 @@
 
       <!-- v-for rendert alle gefilterten Supplements -->
       <div
-        v-for="supplement in filteredSupplements"
-        :key="supplement.id"
+        v-for="(supplement, index) in filteredSupplements"
+        :key="index"
         class="supplement-card"
       >
 
@@ -38,8 +38,8 @@
           <h3>{{ supplement.icon }} {{ supplement.name }}</h3>
 
           <span :class="supplement.taken ? 'status done' : 'status open'">
-            {{ supplement.taken ? 'Taken' : 'Open' }}
-          </span>
+        {{ supplement.taken ? 'Taken' : 'Open' }}
+      </span>
         </div>
 
         <!-- Supplement-Informationen -->
@@ -50,7 +50,7 @@
         <!-- Button zum Ändern des Status -->
         <button
           class="toggle-btn"
-          @click="toggleTaken(supplement.id)"
+          @click="toggleTaken(supplement)"
         >
           Change Status
         </button>
@@ -108,13 +108,9 @@ export default {
   },
 
   methods: {
-  // Ändert den Status von Taken zu Open oder andersrum
-    toggleTaken (id) {
-      const supplement = this.supplements.find(item => item.id === id)
-
-      if (supplement) {
-        supplement.taken = !supplement.taken
-      }
+    // Ändert den Status des ausgewählten Supplements
+    toggleTaken (supplement) {
+      supplement.taken = !supplement.taken
     }
   }
 }
