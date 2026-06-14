@@ -1,12 +1,9 @@
 <template>
-  <!-- Bereich der Supplement-Liste -->
   <section class="dashboard">
 
-    <!-- Fortschritt -->
     <div class="progress-box">
       <h2>{{ takenCount }} / {{ supplements.length }} supplements taken today</h2>
 
-      <!-- Fortschrittsleiste -->
       <div class="progress-bar">
         <div
           class="progress-fill"
@@ -15,7 +12,21 @@
       </div>
     </div>
 
-    <!-- Suchfeld -->
+    <div class="form-box">
+      <h2>Add New Supplement</h2>
+
+      <input v-model="newSupplement.name" class="search-input" type="text" placeholder="Name">
+      <input v-model="newSupplement.category" class="search-input" type="text" placeholder="Category">
+      <input v-model.number="newSupplement.dosage" class="search-input" type="number" placeholder="Dosage">
+      <input v-model.number="newSupplement.stock" class="search-input" type="number" placeholder="Stock">
+      <input v-model="newSupplement.intakeTime" class="search-input" type="text" placeholder="Time">
+      <input v-model="newSupplement.notes" class="search-input" type="text" placeholder="Notes">
+
+      <button class="toggle-btn" @click="addSupplement">
+        Add Supplement
+      </button>
+    </div>
+
     <input
       v-model="searchText"
       class="search-input"
@@ -23,38 +34,31 @@
       placeholder="Search supplements..."
     >
 
-    <!-- Karten-Grid -->
     <div class="supplement-grid">
-
-      <!-- v-for rendert alle gefilterten Supplements -->
       <div
         v-for="(supplement, index) in filteredSupplements"
         :key="index"
         class="supplement-card"
       >
-
-        <!-- Kartenkopf -->
         <div class="card-header">
           <h3>{{ supplement.icon }} {{ supplement.name }}</h3>
 
           <span :class="supplement.taken ? 'status done' : 'status open'">
-        {{ supplement.taken ? 'Taken' : 'Open' }}
-      </span>
+            {{ supplement.taken ? 'Taken' : 'Open' }}
+          </span>
         </div>
 
-        <!-- Supplement-Informationen -->
         <p><strong>Dosage:</strong> {{ supplement.dosage }}</p>
         <p><strong>Category:</strong> {{ supplement.category }}</p>
-        <p><strong>Time:</strong> {{ supplement.time }}</p>
+        <p><strong>Time:</strong> {{ supplement.intakeTime }}</p>
+        <p><strong>Notes:</strong> {{ supplement.notes }}</p>
 
-        <!-- Button zum Ändern des Status -->
         <button
           class="toggle-btn"
           @click="toggleTaken(supplement)"
         >
           Change Status
         </button>
-
       </div>
     </div>
   </section>
@@ -64,44 +68,27 @@
 export default {
   name: 'SupplementList',
 
-  // Lokale Daten
   data () {
     return {
-      // Suchtext für die Filterfunktion
       searchText: '',
+      supplements: [],
 
-      // Supplement-Daten vom Backend
-      supplements: []
+      newSupplement: {
+        name: '',
+        category: '',
+        dosage: 0,
+        stock: 0,
+        intakeTime: '',
+        notes: ''
+      }
     }
   },
 
-  // Lädt Daten vom Spring Boot Backend
   mounted () {
-    fetch('https://supplement-tracker-backend.onrender.com/supplements')
-      .then(response => response.json())
-      .then(data => {
-        this.supplements = data.map(supplement => ({
-          ...supplement,
-          taken: false,
-          icon:
-            supplement.name === 'Vitamin D'
-              ? '☀️'
-              : supplement.name === 'Creatin'
-                ? '💪'
-                : supplement.name === 'Omega 3'
-                  ? '❤️'
-                  : supplement.name === 'Magnesium'
-                    ? '🌙'
-                    : '💊'
-        }))
-      })
-      .catch(error => {
-        console.error('Fehler beim Laden der Supplements:', error)
-      })
+    this.loadSupplements()
   },
 
   computed: {
-  // Filtert Supplements anhand des Suchfelds
     filteredSupplements () {
       return this.supplements.filter(supplement =>
         supplement.name
@@ -111,21 +98,79 @@ export default {
       )
     },
 
-    // Zählt eingenommene Supplements
     takenCount () {
       return this.supplements.filter(supplement => supplement.taken).length
     },
 
-    // Berechnet Fortschritt in Prozent
     progressPercent () {
+      if (this.supplements.length === 0) {
+        return 0
+      }
+
       return (this.takenCount / this.supplements.length) * 100
     }
   },
 
   methods: {
-    // Ändert den Status des ausgewählten Supplements
+    loadSupplements () {
+      fetch('https://supplement-tracker-backend.onrender.com/supplements')
+        .then(response => response.json())
+        .then(data => {
+          this.supplements = data.map(supplement => ({
+            ...supplement,
+            taken: false,
+            icon: this.getIcon(supplement.name)
+          }))
+        })
+        .catch(error => {
+          console.error('Fehler beim Laden der Supplements:', error)
+        })
+    },
+
+    addSupplement () {
+      fetch('https://supplement-tracker-backend.onrender.com/supplements', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.newSupplement)
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.supplements.push({
+            ...data,
+            taken: false,
+            icon: this.getIcon(data.name)
+          })
+
+          this.newSupplement = {
+            name: '',
+            category: '',
+            dosage: 0,
+            stock: 0,
+            intakeTime: '',
+            notes: ''
+          }
+        })
+        .catch(error => {
+          console.error('Fehler beim Speichern:', error)
+        })
+    },
+
     toggleTaken (supplement) {
       supplement.taken = !supplement.taken
+    },
+
+    getIcon (name) {
+      return name === 'Vitamin D'
+        ? '☀️'
+        : name === 'Creatin'
+          ? '💪'
+          : name === 'Omega 3'
+            ? '❤️'
+            : name === 'Magnesium'
+              ? '🌙'
+              : '💊'
     }
   }
 }
@@ -137,8 +182,8 @@ export default {
   margin: 0 auto;
 }
 
-/* Fortschrittsbox */
-.progress-box {
+.progress-box,
+.form-box {
   background: rgba(31, 41, 55, 0.75);
   border-radius: 24px;
   padding: 24px;
@@ -146,11 +191,11 @@ export default {
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
 }
 
-.progress-box h2 {
+.progress-box h2,
+.form-box h2 {
   color: #d1d5db;
 }
 
-/* Fortschrittsleiste */
 .progress-bar {
   height: 14px;
   background: #374151;
@@ -158,19 +203,18 @@ export default {
   overflow: hidden;
 }
 
-/* Gefüllter Teil der Leiste */
 .progress-fill {
   height: 100%;
   background: linear-gradient(135deg, #8b5cf6, #a855f7);
   transition: width 0.3s ease;
 }
 
-/* Suchfeld */
 .search-input {
   width: 100%;
   max-width: 450px;
   padding: 14px 18px;
-  margin-bottom: 35px;
+  margin: 8px auto 18px auto;
+  display: block;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: #1f2937;
@@ -178,14 +222,12 @@ export default {
   font-size: 16px;
 }
 
-/* Grid */
 .supplement-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 28px;
 }
 
-/* Karte */
 .supplement-card {
   background: rgba(31, 41, 55, 0.75);
   backdrop-filter: blur(14px);
@@ -197,7 +239,6 @@ export default {
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
 }
 
-/* Glow-Effekt */
 .supplement-card:hover {
   transform: translateY(-6px);
   box-shadow:
@@ -237,10 +278,10 @@ p {
   line-height: 1.7;
 }
 
-/* Toggle-Button */
 .toggle-btn {
   margin-top: 15px;
   width: 100%;
+  max-width: 450px;
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
   border: none;
