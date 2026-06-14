@@ -59,6 +59,13 @@
         >
           Change Status
         </button>
+
+        <button
+          class="delete-btn"
+          @click="deleteSupplement(supplement.id)"
+        >
+          Delete Supplement
+        </button>
       </div>
     </div>
   </section>
@@ -118,7 +125,7 @@ export default {
         .then(data => {
           this.supplements = data.map(supplement => ({
             ...supplement,
-            taken: false,
+            taken: Boolean(supplement.taken),
             icon: this.getIcon(supplement.name)
           }))
         })
@@ -139,7 +146,7 @@ export default {
         .then(data => {
           this.supplements.push({
             ...data,
-            taken: false,
+            taken: Boolean(data.taken),
             icon: this.getIcon(data.name)
           })
 
@@ -163,10 +170,24 @@ export default {
       })
         .then(response => response.json())
         .then(updatedSupplement => {
-          supplement.taken = updatedSupplement.taken
+          supplement.taken = Boolean(updatedSupplement.taken)
         })
         .catch(error => {
           console.error('Fehler beim Aktualisieren:', error)
+        })
+    },
+
+    deleteSupplement (id) {
+      fetch(`https://supplement-tracker-backend.onrender.com/supplements/${id}`, {
+        method: 'DELETE'
+      })
+        .then(() => {
+          this.supplements = this.supplements.filter(
+            supplement => supplement.id !== id
+          )
+        })
+        .catch(error => {
+          console.error('Fehler beim Löschen:', error)
         })
     },
 
@@ -287,11 +308,11 @@ p {
   line-height: 1.7;
 }
 
-.toggle-btn {
+.toggle-btn,
+.delete-btn {
   margin-top: 15px;
   width: 100%;
   max-width: 450px;
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
   border: none;
   padding: 12px;
@@ -301,7 +322,16 @@ p {
   transition: all 0.3s ease;
 }
 
-.toggle-btn:hover {
+.toggle-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.toggle-btn:hover,
+.delete-btn:hover {
   transform: translateY(-3px);
   box-shadow:
     0 12px 35px rgba(139, 92, 246, 0.45),
