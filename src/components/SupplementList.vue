@@ -330,11 +330,17 @@ p {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
 }
 
-.toggle-btn:hover,
-.delete-btn:hover {
+.toggle-btn:hover {
   transform: translateY(-3px);
   box-shadow:
     0 12px 35px rgba(139, 92, 246, 0.45),
     0 0 25px rgba(168, 85, 247, 0.35);
+}
+
+.delete-btn:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 35px rgba(239, 68, 68, 0.45),
+    0 0 25px rgba(220, 38, 38, 0.35);
 }
 </style>
