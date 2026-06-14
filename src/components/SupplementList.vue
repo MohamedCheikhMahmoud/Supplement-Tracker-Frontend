@@ -158,7 +158,16 @@ export default {
     },
 
     toggleTaken (supplement) {
-      supplement.taken = !supplement.taken
+      fetch(`https://supplement-tracker-backend.onrender.com/supplements/${supplement.id}/toggle`, {
+        method: 'PUT'
+      })
+        .then(response => response.json())
+        .then(updatedSupplement => {
+          supplement.taken = updatedSupplement.taken
+        })
+        .catch(error => {
+          console.error('Fehler beim Aktualisieren:', error)
+        })
     },
 
     getIcon (name) {
